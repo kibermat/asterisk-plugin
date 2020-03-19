@@ -4,7 +4,7 @@
  *
  *  sip: 1310, 1335, 1370
  *
- *  telnet 193.0.0.0 5038
+ *  telnet 193.150.118.15 5038
  *  Action: Login
  *  Username: callcenter
  *  Secret: 01callC2020
@@ -28,7 +28,7 @@ return array(
     'socket' => 'tcp://127.0.0.1:1127',
     'websocket' => 'websocket://0.0.0.0:81',
     'asterisk' => array(
-        'host' => '193.0.0.0',
+        'host' => '193.150.118.15',
         'scheme' => 'tcp://',
         'port' => 5038,
         'username' => 'callcenter',
