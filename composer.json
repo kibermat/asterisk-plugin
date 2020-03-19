@@ -1,0 +1,22 @@
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/kibermat/PAMI"
+        }
+    ],
+    "require": {
+        "php":">=7.3.14",
+        "marcelog/pami": "2.*",
+        "workerman/workerman": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Plugin\\": "src/Plugin/"
+        }
+    }
+    ,"scripts": {
+        "server": "php server.php",
+        "client": "php -S 0.0.0.0:8080 -t web/"
+    }
+}

@@ -1,0 +1,384 @@
+
+PAMI\Message\Event\FullyBootedEvent Object
+(
+[rawContent:protected] => Event: FullyBooted
+Privilege: system,all
+Status: Fully Booted
+[channelVariables:protected] => Array
+(
+[default] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => FullyBooted
+[privilege] => system,all
+[status] => Fully Booted
+)
+
+[createdDate:protected] => 1581339414
+)
+PAMI\Message\Event\NewchannelEvent Object
+(
+[rawContent:protected] => Event: Newchannel
+Privilege: call,all
+Channel: SIP/1310-00000032
+ChannelState: 0
+ChannelStateDesc: Down
+CallerIDNum: 1310
+CallerIDName: astra-metall-1310
+ConnectedLineNum: <unknown>
+ConnectedLineName: <unknown>
+Language: en
+AccountCode:
+Context: from-internal
+Exten: s
+Priority: 1
+Uniqueid: 1581339415.78
+Linkedid: 1581339415.78
+[channelVariables:protected] => Array
+(
+[sip/1310-00000032] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => Newchannel
+[privilege] => call,all
+[channel] => SIP/1310-00000032
+[channelstate] => 0
+[channelstatedesc] => Down
+[calleridnum] => 1310
+[calleridname] => astra-metall-1310
+[connectedlinenum] => <unknown>
+[connectedlinename] => <unknown>
+[language] => en
+[accountcode] =>
+[context] => from-internal
+[exten] => s
+[priority] => 1
+[uniqueid] => 1581339415.78
+[linkedid] => 1581339415.78
+)
+
+[createdDate:protected] => 1581339418
+)
+PAMI\Message\Event\VarSetEvent Object
+(
+[rawContent:protected] => Event: VarSet
+Privilege: dialplan,all
+Channel: SIP/1310-00000032
+ChannelState: 0
+ChannelStateDesc: Down
+CallerIDNum: 1310
+CallerIDName: astra-metall-1310
+ConnectedLineNum: <unknown>
+ConnectedLineName: <unknown>
+Language: en
+AccountCode:
+Context: from-internal
+Exten: s
+Priority: 1
+Uniqueid: 1581339415.78
+Linkedid: 1581339415.78
+Variable: SIPCALLID
+Value: 0bfe253b5f5941cb68c5b2570942e5b2@:5060
+[channelVariables:protected] => Array
+(
+[sip/1310-00000032] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => VarSet
+[privilege] => dialplan,all
+[channel] => SIP/1310-00000032
+[channelstate] => 0
+[channelstatedesc] => Down
+[calleridnum] => 1310
+[calleridname] => astra-metall-1310
+[connectedlinenum] => <unknown>
+[connectedlinename] => <unknown>
+[language] => en
+[accountcode] =>
+[context] => from-internal
+[exten] => s
+[priority] => 1
+[uniqueid] => 1581339415.78
+[linkedid] => 1581339415.78
+[variable] => SIPCALLID
+[value] => 0bfe253b5f5941cb68c5b2570942e5b2@:5060
+)
+
+[createdDate:protected] => 1581339418
+)
+PAMI\Message\Event\NewextenEvent Object
+(
+[rawContent:protected] => Event: Newexten
+Privilege: call,all
+Channel: SIP/1310-00000032
+ChannelState: 0
+ChannelStateDesc: Down
+CallerIDNum: 1310
+CallerIDName: astra-metall-1310
+ConnectedLineNum: <unknown>
+ConnectedLineName: <unknown>
+Language: ru
+AccountCode:
+Context: from-internal
+Exten:
+Priority: 1
+Uniqueid: 1581339415.78
+Linkedid: 1581339415.78
+Extension:
+Application: AppDial2
+AppData: (Outgoing Line)
+[channelVariables:protected] => Array
+(
+[sip/1310-00000032] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => Newexten
+[privilege] => call,all
+[channel] => SIP/1310-00000032
+[channelstate] => 0
+[channelstatedesc] => Down
+[calleridnum] => 1310
+[calleridname] => astra-metall-1310
+[connectedlinenum] => <unknown>
+[connectedlinename] => <unknown>
+[language] => ru
+[accountcode] =>
+[context] => from-internal
+[exten] =>
+[priority] => 1
+[uniqueid] => 1581339415.78
+[linkedid] => 1581339415.78
+[extension] =>
+[application] => AppDial2
+[appdata] => (Outgoing Line)
+)
+
+[createdDate:protected] => 1581339418
+)
+PAMI\Message\Event\ExtensionStatusEvent Object
+(
+[rawContent:protected] => Event: ExtensionStatus
+Privilege: call,all
+Exten: 1310
+Context: ext-local
+Hint: SIP/1310&Custom:DND1310,CustomPresence:1310
+Status: 8
+StatusText: Ringing
+[channelVariables:protected] => Array
+(
+[default] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => ExtensionStatus
+[privilege] => call,all
+[exten] => 1310
+[context] => ext-local
+[hint] => SIP/1310&Custom:DND1310,CustomPresence:1310
+[status] => 8
+[statustext] => Ringing
+)
+
+[createdDate:protected] => 1581339418
+)
+PAMI\Message\Event\UnknownEvent Object
+(
+[rawContent:protected] => Event: DeviceStateChange
+Privilege: call,all
+Device: SIP/1310
+State: RINGING
+[channelVariables:protected] => Array
+(
+[default] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => DeviceStateChange
+[privilege] => call,all
+[device] => SIP/1310
+[state] => RINGING
+)
+
+[createdDate:protected] => 1581339418
+)
+PAMI\Message\Event\QueueMemberStatusEvent Object
+(
+[rawContent:protected] => Event: QueueMemberStatus
+Privilege: agent,all
+Queue: 9002
+MemberName: astra-metall-1310
+Interface: Local/1310@from-queue/n
+StateInterface: hint:1310@ext-local
+Membership: static
+Penalty: 0
+CallsTaken: 0
+LastCall: 0
+InCall: 0
+Status: 6
+Paused: 0
+PausedReason:
+Ringinuse: 1
+[channelVariables:protected] => Array
+(
+[default] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => QueueMemberStatus
+[privilege] => agent,all
+[queue] => 9002
+[membername] => astra-metall-1310
+[interface] => Local/1310@from-queue/n
+[stateinterface] => hint:1310@ext-local
+[membership] => static
+[penalty] => 0
+[callstaken] => 0
+[lastcall] => 0
+[incall] => 0
+[status] => 6
+[paused] => 0
+[pausedreason] =>
+[ringinuse] => 1
+)
+
+[createdDate:protected] => 1581339418
+)
+PAMI\Message\Event\QueueMemberStatusEvent Object
+(
+[rawContent:protected] => Event: QueueMemberStatus
+Privilege: agent,all
+Queue: 9201
+MemberName: astra-metall-1310
+Interface: Local/1310@from-queue/n
+StateInterface: hint:1310@ext-local
+Membership: static
+Penalty: 0
+CallsTaken: 0
+LastCall: 0
+InCall: 0
+Status: 6
+Paused: 0
+PausedReason:
+Ringinuse: 1
+[channelVariables:protected] => Array
+(
+[default] => Array
+(
+)
+
+)
+
+[lines:protected] => Array
+(
+)
+
+[variables:protected] => Array
+(
+)
+
+[keys:protected] => Array
+(
+[event] => QueueMemberStatus
+[privilege] => agent,all
+[queue] => 9201
+[membername] => astra-metall-1310
+[interface] => Local/1310@from-queue/n
+[stateinterface] => hint:1310@ext-local
+[membership] => static
+[penalty] => 0
+[callstaken] => 0
+[lastcall] => 0
+[incall] => 0
+[status] => 6
+[paused] => 0
+[pausedreason] =>
+[ringinuse] => 1
+)
