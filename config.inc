@@ -24,7 +24,13 @@
  *
  */
 
+putenv('TMP=' . __dir__ . '/temp');
+
 return array(
+    'php_extensions' => array(
+        'php_pdo_sqlite',
+        'php_sqlite3'
+    ),
     'socket' => 'tcp://127.0.0.1:1127',
     'websocket' => 'websocket://0.0.0.0:81',
     'asterisk' => array(
@@ -38,4 +44,3 @@ return array(
         'event_prefix' => 'Tf',
     )
 );
-

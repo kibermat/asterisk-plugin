@@ -2,3 +2,5 @@
 composer.lock
 vendor
 /config.inc
+/src/Plugin/Server/db/astra.db
+temp
