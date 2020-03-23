@@ -20,7 +20,8 @@ class Response
         $this->origin = $event;
     }
 
-    public function get() {
+    public function get()
+    {
         return get_object_vars($this);
     }
 

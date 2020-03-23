@@ -16,22 +16,30 @@ use PAMI\Message\Event\EventMessage;
 use PAMI\Listener\IEventListener;
 
 use Plugin\Server\Response;
+use Plugin\Server\SqlLiteManager;
 
 
 class AsteriskListener implements IEventListener
 {
     private $server;
     private $socket;
+    private $db;
 
     public function __construct($config)
     {
         $this->server = null;
         $this->socket = $config['socket'];
+        $this->db = new SqlLiteManager();
     }
 
     public function handle(EventMessage $event)
     {
-        $this->stream($event);
+        $response = $this->stream($event);
+
+        if ($response) {
+            $this->db->insertEvent($response->name, $response->message, $response->status,
+                $response->user, $response->caller);
+        }
     }
 
     public function stream(EventMessage $event) {
@@ -136,6 +144,8 @@ class AsteriskListener implements IEventListener
         fwrite($instance, json_encode($response->get()));
 
         print_r($response->user . '>>> ' . $event->getName()   . ' ' . get_class($event) . PHP_EOL);
+
+        return $response;
 
     }
 }

@@ -7,24 +7,65 @@ use SQLite3;
 
 class SqlLiteManager extends SQLite3
 {
-    function __construct()
+    public function __construct()
     {
-        $this->open('db/astra.db');
-        $this->query('
-                create table if not exists astra_history (
-                    operator int, 
-                    client int,
-                    status int default null, 
-                    create_time timestamp default current_timestamp
-                )');
+        $db = __DIR__ . '/db/astra.db';
+        $this->open($db);
+        $this->exec('
+               create table if not exists astra_status as
+                    with cte(id, code) as (
+                        select t.*
+                        from (values (0, \'OFFLINE\'),
+                                     (1, \'ONLINE\'),
+                                     (10, \'TALK\'),
+                                     (11, \'BUSY\'),
+                                     (20, \'RING\'),
+                                     (30, \'MISSING\')
+                             ) as t)
+                    select id, code
+                    from cte    
+        ');
+        $this->exec('
+                create table if not exists astra_events (
+                    event text not null,
+                    message text, 
+                    status int not null, 
+                    direction text, 
+                    operator int default null,
+                    client int default null,
+                    create_time timestamp default current_timestamp,
+                    foreign key(operator) references astra_status(id),
+                    check ( direction in (\'in\', \'out\') )
+                );
+                create index if not exists astra_events_create_time ON astra_events(create_time);  
+        ');
     }
 
-    function insertHistory($operator, $client, $status)
+    public function __destruct()
     {
-        $format = 'insert into astra_history (operator, client, status) values (%d, %d, %d)';
-        $this->exec(sprintf($format, $operator, $client, $status));
+        $this->close();
+    }
+
+    public function insertEvent($event, $message, $status, $operator = null, $client = null, $direction = null)
+    {
+        if (!$event or !$status) {
+            return false;
+        }
+
+        $format = 'insert into astra_events (event, message, status, direction, operator, client) 
+                        values ( \'%s\', \'%s\', %d, \'%s\', %d, %d)';
+
+        return $this->exec(sprintf($format, $event, substr($message, 0, 250),
+            $this->getStatus($status), $direction, $operator, $client));
+    }
+
+    public function getStatus($code)
+    {
+        return $this->querySingle(sprintf('select id from astra_status where code = \'%s\' limit 1',
+            strtoupper($code)), false);
     }
 }
 
-$db = new SqlLiteManager();
-//$db->insertHistory(1310, 88800, 1);
+//$db = new SqlLiteManager();
+//$db->insertEvent( 'event', 'ping ', 'ring', 1310, 8800, 'out');
+//$db->getStatus('ring');

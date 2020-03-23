@@ -27,8 +27,6 @@ $config = include('config.inc');
 
 $options = $config['asterisk'];
 
-$ws_worker = new Worker($config['websocket']);
-
 $users = [];
 
 $pamiClient = new PamiClient($options);
@@ -42,50 +40,10 @@ $pamiClient->registerEventListener(new AsteriskListener($config),
 
 $pamiClient->open();
 
-$originateMsg = new Action();
-$originateMsg->setActionID(1111999);
-print_r($pamiClient->send($originateMsg));
+//$originateMsg = new Action();
+//$originateMsg->setActionID(1111999);
+//print_r($pamiClient->send($originateMsg));
 
+$res = new Response();
+$res->get();
 
-$ws_worker->onConnect = function ($connection) use (&$users) {
-    $connection->onWebSocketConnect = function ($connection) use (&$users) {
-        foreach ($users as $user) {
-            $webconnection = $user;
-            $response = new Response();
-            $response->name = 'peerStatus';
-            $response->user = $user;
-            $response->username = $user;
-            $response->status = 'Online';
-            $webconnection->send(json_encode($response->get()));
-        }
-        // при подключении нового пользователя сохраняем get-параметр
-        $user = $_GET['user'];
-        $users[$user] = $connection;
-        print_r('connected ' . $user . PHP_EOL);
-    };
-};
-
-$ws_worker->onClose = function ($connection) use (&$users) {
-    foreach ($users as $user) {
-        $webconnection = $user;
-        $response = new Response();
-        $response->name = 'peerStatus';
-        $response->user = $user;
-        $response->username = $user;
-        $response->status = 'Offline';
-        $webconnection->send(json_encode($response->get()));
-    }
-
-    // удаляем параметр при отключении пользователя
-    $user = array_search($connection, $users);
-    unset($users[$user]);
-    print_r('disconnect ' . $user . PHP_EOL);
-
-//    if (count($users) == 0) {
-//        global $pamiClient;
-//        Timer::delAll();
-//        $pamiClient->close();
-//        echo('Worker>>> closed');
-//    }
-
-};
