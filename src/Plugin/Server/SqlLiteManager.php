@@ -34,8 +34,7 @@ class SqlLiteManager extends SQLite3
                     operator int default null,
                     client int default null,
                     create_time timestamp default current_timestamp,
-                    foreign key(operator) references astra_status(id),
-                    check ( direction in (\'in\', \'out\') )
+                    foreign key(status) references astra_status(id)
                 );
                 create index if not exists astra_events_create_time ON astra_events(create_time);  
         ');
@@ -48,7 +47,7 @@ class SqlLiteManager extends SQLite3
 
     public function insertEvent($event, $message, $status, $operator = null, $client = null, $direction = null)
     {
-        if (!$event or !$status) {
+        if (!$event or !($status and $this->getStatus($status))) {
             return false;
         }
 
