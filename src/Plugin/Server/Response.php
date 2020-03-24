@@ -20,6 +20,10 @@ class Response
         $this->origin = $event;
     }
 
+    public function __destruct() {
+
+    }
+
     public function get()
     {
         return get_object_vars($this);

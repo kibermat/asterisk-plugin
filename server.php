@@ -12,6 +12,8 @@ use Workerman\Lib\Timer;
 
 use Plugin\Server\AsteriskListener;
 use Plugin\Server\Response;
+use Plugin\Server\SqlLiteManager;
+
 
 $config = include('config.inc');
 
@@ -24,6 +26,8 @@ $ws_worker->count = 2;
 $users = [];
 
 $pamiClient = new PamiClient($options);
+
+$db = new SqlLiteManager();
 
 $ws_worker->onWorkerStart = function() use (&$users) {
     global $pamiClient;
@@ -76,6 +80,7 @@ $ws_worker->onConnect = function($connection) use (&$users)
 {
     $connection->onWebSocketConnect = function($connection) use (&$users)
     {
+        global $db;
         foreach ($users as $user) {
             $webconnection = $user;
             $response = new Response();
@@ -84,6 +89,7 @@ $ws_worker->onConnect = function($connection) use (&$users)
             $response->username = $user;
             $response->status = 'Online';
             $webconnection->send(json_encode($response->get()));
+            $db->getEvents($user);
         }
         // при подключении нового пользователя сохраняем get-параметр
         $user = $_GET['user'];
