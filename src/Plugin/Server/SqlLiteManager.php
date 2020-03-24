@@ -69,19 +69,14 @@ class SqlLiteManager extends SQLite3
 
     public function getEvents($operator, $status = null)
     {
-        $arr = [];
         $code = $this->getStatus($status);
-        $results = $this->query(sprintf(
+        return $this->query(sprintf(
             'select * from astra_events as e 
                         where e.operator = %d 
                               and (e.status = \'%s\' or \'%s\' == \'\')  
                               and e.create_time >= current_date 
                          order by e.create_time desc 
                               ', $operator, $code, $code));
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            array_push($arr, $row);
-        }
-        return $arr;
     }
 }
 

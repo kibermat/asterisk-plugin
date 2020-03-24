@@ -6,7 +6,7 @@ define(function () {
             <div class="slider__wrapper hidden">
                 <div class="slider__item slider__item-main" >
                    <div class="slider__item-content" 
-                        style="padding: 80px 24px; height: 750px; background-color:rgba(0, 0, 0, 0.5);font-size: x-large;">
+                        style="padding: 80px 24px; height: 750px; background-color:rgba(255, 255, 255, 0.8);font-size: x-large;">
                     </div>
                 </div>
             </div>

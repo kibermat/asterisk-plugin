@@ -98,6 +98,11 @@ $ws_worker->onConnect = function($connection) use (&$users)
             $res->event = 'missed';
             $connection->send(json_encode($res));
         }
+        $results = $db->getEvents($user, 'missed');
+        while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
+            $res->event = 'missed';
+            $connection->send(json_encode($res));
+        }
 
         print_r('connected ' . $user . PHP_EOL);
     };
