@@ -89,8 +89,8 @@ define(function () {
                 getMax: _items.length, // - 1
             };
 
-            var _createNode = function (html) {
-                var tag = document.createElement('li');
+            var _createNode = function (html, tag = 'li') {
+                var tag = document.createElement(tag);
                 tag.className = "slider__item-content-row";
                 tag.innerHTML = html;
                 return tag;
@@ -107,12 +107,11 @@ define(function () {
                     if (!_operators.hasOwnProperty(key)) {
                         continue;
                     }
-                    _sliderMainContent.append(_createNode(key + ' : ' + _operators[key]));
+                    _sliderMainContent.append(_createNode(key + ' : ' + _operators[key]), 'p');
 
                     for (var event in _eventList[key]) {
-                        _sliderMainContent.append(_createNode(event.client + ' ' + event.status));
+                        _sliderMainContent.append(_createNode(event.client + ' ' + event.status, 'li'));
                     }
-
                 }
             };
 
