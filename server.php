@@ -84,16 +84,21 @@ $ws_worker->onConnect = function($connection) use (&$users)
         foreach ($users as $user) {
             $webconnection = $user;
             $response = new Response();
-            $response->name = 'peerStatus';
-            $response->user = $user;
+            $response->event = 'peerStatus';
+            $response->operator = $user;
             $response->username = $user;
             $response->status = 'Online';
             $webconnection->send(json_encode($response->get()));
-            $db->getEvents($user);
         }
         // при подключении нового пользователя сохраняем get-параметр
         $user = $_GET['user'];
         $users[$user] = $connection;
+
+        foreach ($db->getEvents($user, 'missed') as $res) {
+            $res->event = 'missed';
+            $connection->send(json_encode($res));
+        }
+
         print_r('connected ' . $user . PHP_EOL);
     };
 };
@@ -103,8 +108,8 @@ $ws_worker->onClose = function($connection) use(&$users)
     foreach ($users as $user) {
         $webconnection = $user;
         $response = new Response();
-        $response->name = 'peerStatus';
-        $response->user = $user;
+        $response->event = 'peerStatus';
+        $response->operator = $user;
         $response->username = $user;
         $response->status = 'Offline';
         $webconnection->send(json_encode($response->get()));

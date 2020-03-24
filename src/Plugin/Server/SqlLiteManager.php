@@ -20,7 +20,7 @@ class SqlLiteManager extends SQLite3
                                      (10, \'TALK\'),
                                      (11, \'BUSY\'),
                                      (20, \'RING\'),
-                                     (30, \'MISSING\')
+                                     (30, \'MISSED\')
                              ) as t)
                     select id, code
                     from cte    
@@ -86,7 +86,7 @@ class SqlLiteManager extends SQLite3
 }
 
 //$db = new SqlLiteManager();
-//$db->insertEvent( 'event', 'ping ', 'missing', 1310, 8800, 'out');
+//$db->insertEvent( 'event', 'ping ', 'missed', 1310, 8800, 'out');
 //$db->getStatus('ring');
 //$res = $db->getEvents(1310, 'ring');
 

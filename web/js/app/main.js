@@ -63,5 +63,11 @@ define([
             openForm(data);
         }, Asterisk);
 
+        EventBus.addEventListener('missed', function (event) {
+            var data = JSON.parse(event.target.data);
+            slider.setEvents(data.user, data);
+            slider.render();
+        }, Asterisk);
+
     });
 });

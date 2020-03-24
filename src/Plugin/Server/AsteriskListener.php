@@ -37,34 +37,34 @@ class AsteriskListener implements IEventListener
         $response = $this->stream($event);
 
         if ($response) {
-            $this->db->insertEvent($response->name, $response->message, $response->status,
-                $response->user, $response->caller);
+            $this->db->insertEvent($response->event, $response->message, $response->status,
+                $response->operator, $response->client);
         }
     }
 
     public function stream(EventMessage $event) {
         $response = new Response($event);
-        $response->user = $event->getKey('Exten');
-        $response->name = $event->getName();
+        $response->operator = $event->getKey('Exten');
+        $response->event = $event->getName();
         $response->message = null;
         $response->username = null;
         $response->status = null;
 
         if ($event instanceof NewchannelEvent) {
-            $response->name = 'talkStart';
+            $response->event = 'talkStart';
             $response->status = 'newChannel';
-            $response->caller = $event->getCallerIDNum();
-            $response->user = $event->getExtension();
-            $response->message = $response->caller . ' >>> ' . $response->user . PHP_EOL;
+            $response->client = $event->getCallerIDNum();
+            $response->operator = $event->getExtension();
+            $response->message = $response->client . ' >>> ' . $response->operator . PHP_EOL;
         } elseif ($event instanceof QueueMemberStatusEvent) {
             preg_match('/(\d)+/', $event->getMemberName(), $members);
             if ($members) {
-                $response->caller = $members[0];
+                $response->client = $members[0];
             }
 
-            $response->user = -1;
+            $response->operator = -1;
             $response->username = $event->getMemberName();
-            $response->name = 'peerStatus';
+            $response->event = 'peerStatus';
             $response->status = 'Online';
             $device_status = $event->getStatus();
 
@@ -91,7 +91,7 @@ class AsteriskListener implements IEventListener
                     break;
                 case '6' :
                     $device_status = 'AST_DEVICE_RINGING';
-                    $response->name = 'ringStart';
+                    $response->event = 'ringStart';
                     $response->status = 'Ring';
                     break;
                 case '7' :
@@ -102,20 +102,20 @@ class AsteriskListener implements IEventListener
                     $device_status = 'AST_DEVICE_ONHOLD';
                     break;
             }
-            $response->message = ' ringStart2 ' . $response->user . ' ' . $response->status;
+            $response->message = ' ringStart2 ' . $response->operator . ' ' . $response->status;
         } elseif ($event instanceof DeviceStateChangeEvent  && $event->getState() == 'RINGING') {
-            $response->name = 'ringStart';
+            $response->event = 'ringStart';
             $response->status = 'Ring';
-            $response->user = -1;
-            $response->message = ' ringStart3 ' . $response->name . ' >>> ' . $response->user;
+            $response->operator = -1;
+            $response->message = ' ringStart3 ' . $response->event . ' >>> ' . $response->operator;
         }   elseif ($event instanceof QueueMemberEvent) {
-            $response->user = -1;
-            $response->name = 'peerStatus';
+            $response->operator = -1;
+            $response->event = 'peerStatus';
             $response->status = 'Online';
             $response->username = $event->getMemberName();
         }   elseif ($event instanceof PeerStatusEvent) {
-            $response->user = -1;
-            $response->name = 'peerStatus';
+            $response->operator = -1;
+            $response->event = 'peerStatus';
             $response->status = $event->getPeerStatus();
             $response->username = $event->getPeer();
             switch ($response->status) {
@@ -131,9 +131,9 @@ class AsteriskListener implements IEventListener
                     break;
             }
             if (preg_match('/(\d)+/', $response->username, $peers)) {
-                $response->caller = $peers[0];
+                $response->client = $peers[0];
             }
-            $response->message = ' agentsEvent ' . $response->name . ' >>> ' . var_export($event, true);
+            $response->message = ' agentsEvent ' . $response->event . ' >>> ' . var_export($event, true);
         }
 
         if (!$response->message) {
@@ -143,7 +143,7 @@ class AsteriskListener implements IEventListener
         $instance = stream_socket_client($this->socket);
         fwrite($instance, json_encode($response->get()));
 
-        print_r($response->user . '>>> ' . $event->getName()   . ' ' . get_class($event) . PHP_EOL);
+        print_r($response->operator . '>>> ' . $event->getName()   . ' ' . get_class($event) . PHP_EOL);
 
         return $response;
 

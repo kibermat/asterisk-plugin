@@ -4705,7 +4705,7 @@ jQuery.event = {
 			var eventDoc, doc, body,
 				button = original.button;
 
-			// Calculate pageX/Y if missing and clientX/Y available
+			// Calculate pageX/Y if missed and clientX/Y available
 			if ( event.pageX == null && original.clientX != null ) {
 				eventDoc = event.target.ownerDocument || document;
 				doc = eventDoc.documentElement;

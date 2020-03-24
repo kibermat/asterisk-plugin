@@ -7,9 +7,9 @@ class Response
     public $id;
     public $origin;
     public $message;
-    public $user;
-    public $caller;
-    public $name;
+    public $operator;
+    public $client;
+    public $event;
     public $username;
     public $status;
     public $time;

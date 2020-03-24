@@ -38,6 +38,7 @@ define(function () {
                 _items = []; // массив элементов
 
             var _operators = {};
+            var _eventList = {};
 
             var _setVisible = function (isVisible) {
                 if (isVisible) {
@@ -47,12 +48,29 @@ define(function () {
                 }
             };
 
-            var setOperator = function (name, status) {
+            var _getUserNum = function (name) {
                 if (!name || !(~name)) {
                     return;
                 }
                 var num = name.match(/\d+/) || [name];
-                _operators[num[0]] = status;
+
+                return num[0];
+            };
+
+            var setOperator = function (name, status) {
+                var num = _getUserNum(name);
+                if (!num) {
+                    return;
+                }
+                _operators[num] = status;
+            };
+
+            var setEvents = function (user, event) {
+                var num = _getUserNum(user);
+                if (!num) {
+                    return;
+                }
+                _eventList[num] = event;
             };
 
             var _setMinSize = function() {
@@ -90,6 +108,11 @@ define(function () {
                         continue;
                     }
                     _sliderMainContent.append(_createNode(key + ' : ' + _operators[key]));
+
+                    for (var event in _eventList[key]) {
+                        _sliderMainContent.append(_createNode(event.client + ' ' + event.status));
+                    }
+
                 }
             };
 
@@ -162,7 +185,8 @@ define(function () {
                 },
                 setVisible: _setVisible,
                 render: _render,
-                setOperator: setOperator
+                setOperator: setOperator,
+                setEvents: setEvents
             }
         }
     }());
