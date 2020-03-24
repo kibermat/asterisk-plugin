@@ -60,11 +60,33 @@ class SqlLiteManager extends SQLite3
 
     public function getStatus($code)
     {
+        if (!$code) {
+            return;
+        }
         return $this->querySingle(sprintf('select id from astra_status where code = \'%s\' limit 1',
             strtoupper($code)), false);
+    }
+
+    public function getEvents($operator, $status = null)
+    {
+        $arr = [];
+        $code = $this->getStatus($status);
+        $results = $this->query(sprintf(
+            'select * from astra_events as e 
+                        where e.operator = %d 
+                              and (e.status = \'%s\' or \'%s\' == \'\')  
+                              and e.create_time >= current_date 
+                         order by e.create_time desc 
+                              ', $operator, $code, $code));
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            array_push($arr, $row);
+        }
+        return $arr;
     }
 }
 
 //$db = new SqlLiteManager();
-//$db->insertEvent( 'event', 'ping ', 'ring', 1310, 8800, 'out');
+//$db->insertEvent( 'event', 'ping ', 'missing', 1310, 8800, 'out');
 //$db->getStatus('ring');
+//$res = $db->getEvents(1310, 'ring');
+
