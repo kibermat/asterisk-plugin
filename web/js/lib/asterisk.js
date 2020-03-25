@@ -955,7 +955,7 @@ define(["eventbus.min"], function (EventBus) {
 
             var onMessage = function (evt) {
                 var data =  JSON.parse(evt.data);
-                EventBus.dispatch(data.name, evt, data);
+                EventBus.dispatch(data.event, evt, data);
                 triggerAsteriskEvent(data);
             };
 

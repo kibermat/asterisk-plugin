@@ -1,10 +1,12 @@
 define([
-    "jquery",
+     "jquery",
     "asterisk",
     "eventbus.min",
     "./slider",
     "./config"
-], function ($, Asterisk, EventBus, slider, config) {
+], function (
+     $,
+     Asterisk, EventBus, slider, config) {
     $(function () {
         // $('body').asterisk('connected');
 
@@ -15,7 +17,7 @@ define([
             return p ? p[1] : false;
         }
 
-        var user = getParam('user');
+        var operator = getParam(config.login);
 
         var openForm =  function(data) {
             if(window.D3Api === undefined) {
@@ -31,11 +33,11 @@ define([
         };
 
         Asterisk.connect({
-            url: [`${config.websocket}/?user=${user}`], // ip-адрес вашего сервера
+            url: [`${config.websocket}/?operator=${operator}`], // ip-адрес вашего сервера
             openTimeout: 3000,
-            login: user, // необходимо подставить логин текущего пользователя
+            login: operator, // необходимо подставить логин текущего пользователя
             debugMode: true, // используем веб-телефон voice.js
-            password: user, // необходимо подставить пароль пользователя
+            password: operator, // необходимо подставить пароль пользователя
             callback: function (data) {
             }
         }, function(res) {
@@ -46,26 +48,26 @@ define([
 
         EventBus.addEventListener('ringStart', function (event) {
             var data = JSON.parse( event.target.data);
-            slider.setOperator(data.user, 'ring');
+            slider.setOperator(data.operator, 'ring');
             slider.render();
         }, Asterisk);
 
         EventBus.addEventListener('talkStart', function (event) {
             var data = JSON.parse(event.target.data);
-            slider.setOperator(data.user, 'Talk');
+            slider.setOperator(data.operator, 'Talk');
             slider.render();
+            openForm(data);
         }, Asterisk);
 
         EventBus.addEventListener('peerStatus', function (event) {
             var data = JSON.parse( event.target.data);
             slider.setOperator(data.username, data.status);
             slider.render();
-            openForm(data);
         }, Asterisk);
 
         EventBus.addEventListener('missed', function (event) {
             var data = JSON.parse(event.target.data);
-            slider.setEvents(data.user, data);
+            slider.setEvents(data.client, data);
             slider.render();
         }, Asterisk);
 

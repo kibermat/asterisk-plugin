@@ -6,7 +6,7 @@ define(function () {
             <div class="slider__wrapper hidden">
                 <div class="slider__item slider__item-main" >
                    <div class="slider__item-content" 
-                        style="padding: 80px 24px; height: 750px; background-color:rgba(255, 255, 255, 0.8);font-size: x-large;">
+                        style="padding: 80px 24px; height: 750px; background-color:rgba(0, 0, 0, 0.5);font-color:green;font-size: x-large;">
                     </div>
                 </div>
             </div>
@@ -65,10 +65,9 @@ define(function () {
                 _operators[num] = status;
             };
 
-            var setEvents = function (user, event) {
-                var num = _getUserNum(user);
-                if (!num) {
-                    return;
+            var setEvents = function (num, event) {
+                if (!_operators[num]) {
+                    _operators[num] = 'Undefined';
                 }
                 _eventList[num] = event;
             };
@@ -90,10 +89,10 @@ define(function () {
             };
 
             var _createNode = function (html, tag = 'li') {
-                var tag = document.createElement(tag);
-                tag.className = "slider__item-content-row";
-                tag.innerHTML = html;
-                return tag;
+                var dm = document.createElement(tag);
+                dm.className = "slider__item-content-row";
+                dm.innerHTML = html;
+                return dm;
             };
 
             var _appendContent = function(html) {
@@ -107,10 +106,12 @@ define(function () {
                     if (!_operators.hasOwnProperty(key)) {
                         continue;
                     }
-                    _sliderMainContent.append(_createNode(key + ' : ' + _operators[key]), 'p');
+                    _sliderMainContent.append(_createNode(key + ' : ' + _operators[key], 'p') );
 
-                    for (var event in _eventList[key]) {
-                        _sliderMainContent.append(_createNode(event.client + ' ' + event.status, 'li'));
+                    var event = _eventList[key];
+
+                    if (event) {
+                        _sliderMainContent.append(_createNode(event.client + ' ' + event.message, 'li'));
                     }
                 }
             };
