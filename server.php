@@ -39,10 +39,10 @@ $ws_worker->onWorkerStart = function() use (&$users) {
     // когда на локальный tcp-сокет приходит сообщение
     $inner_tcp_worker->onMessage = function($connection, $data) use (&$users) {
         $data = json_decode($data);
-        if (isset($users[$data->user])) {
-            $webconnection = $users[$data->user];
+        if (isset($users[$data->operator])) {
+            $webconnection = $users[$data->operator];
             $webconnection->send(json_encode($data));
-        } elseif($data->user === -1) {
+        } elseif($data->operator === -1) {
             foreach ($users as $user) {
                 $webconnection = $user;
                 $webconnection->send(json_encode($data));
@@ -90,16 +90,19 @@ $ws_worker->onConnect = function($connection) use (&$users)
             $response->status = 'Online';
             $webconnection->send(json_encode($response->get()));
         }
+
         // при подключении нового пользователя сохраняем get-параметр
-        $user = $_GET['user'];
+        $user = $_GET['operator'];
+
+        if (!$user) {
+            return;
+        }
+
         $users[$user] = $connection;
 
-        foreach ($db->getEvents($user, 'missed') as $res) {
-            $res->event = 'missed';
-            $connection->send(json_encode($res));
-        }
         $results = $db->getEvents($user, 'missed');
         while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
+            print_r($res->event);
             $res->event = 'missed';
             $connection->send(json_encode($res));
         }
