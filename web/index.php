@@ -11,7 +11,7 @@
 </head>
 <body>
 
-    <div class="slider hidden" style="width:400px;position:absolute;right:0;top:55px;z-index: 999999;"></div>
+    <div class="slider hidden" style="width:400px;position:absolute;right:0;top:55px;z-index: 999;"></div>
 
 <?php
 //echo sqlite_libversion();

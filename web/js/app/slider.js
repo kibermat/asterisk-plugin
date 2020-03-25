@@ -6,7 +6,9 @@ define(function () {
             <div class="slider__wrapper hidden">
                 <div class="slider__item slider__item-main" >
                    <div class="slider__item-content" 
-                        style="padding: 80px 24px; height: 750px; background-color:rgba(0, 0, 0, 0.5);font-color:green;font-size: x-large;">
+                        style="padding: 80px 24px; height: 750px; background-color:rgba(0, 0, 0, 0.5);
+                            font-size: large;font-family: cursive;">
+                            Загрузка . . .
                     </div>
                 </div>
             </div>
@@ -67,9 +69,15 @@ define(function () {
 
             var setEvents = function (num, event) {
                 if (!_operators[num]) {
-                    _operators[num] = 'Undefined';
+                    _operators[num] = '';
                 }
-                _eventList[num] = event;
+
+                if (!_eventList[num]) {
+                    _eventList[num] = [];
+                }
+
+                _eventList[num].push(event);
+
             };
 
             var _setMinSize = function() {
@@ -102,16 +110,20 @@ define(function () {
             var _render = function() {
                 _sliderMainContent.innerHTML = '';
 
-                for (var key in _operators) {
-                    if (!_operators.hasOwnProperty(key)) {
+                for (var num in _operators) {
+                    if (!_operators.hasOwnProperty(num)) {
                         continue;
                     }
-                    _sliderMainContent.append(_createNode(key + ' : ' + _operators[key], 'p') );
+                    _sliderMainContent.append(_createNode(num + ' : ' + _operators[num], 'p') );
 
-                    var event = _eventList[key];
-
-                    if (event) {
-                        _sliderMainContent.append(_createNode(event.client + ' ' + event.message, 'li'));
+                    for (var id in _eventList[num]) {
+                        var event = _eventList[num][id];
+                        var dt = new Date(event.create_time);
+                        _sliderMainContent.append(_createNode(
+                            event.message + ' ' +
+                                 dt.toLocaleTimeString().slice(0,-3) + ' ' +
+                                 dt.toLocaleDateString().slice(0,-5) ,
+                            'li'));
                     }
                 }
             };
