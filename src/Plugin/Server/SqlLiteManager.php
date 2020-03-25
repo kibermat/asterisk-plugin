@@ -47,15 +47,21 @@ class SqlLiteManager extends SQLite3
 
     public function insertEvent($event, $message, $status, $operator = null, $client = null, $direction = null)
     {
-        if (!$event or !($status and $this->getStatus($status))) {
+        if (!$event or !$status or !$this->getStatus($status)) {
             return false;
         }
+        $result = null;
 
-        $format = 'insert into astra_events (event, message, status, direction, operator, client) 
+        try {
+            $format = 'insert into astra_events (event, message, status, direction, operator, client) 
                         values ( \'%s\', \'%s\', %d, \'%s\', %d, %d)';
 
-        return $this->exec(sprintf($format, $event, substr($message, 0, 250),
-            $this->getStatus($status), $direction, $operator, $client));
+            $result = $this->exec(sprintf($format, strval ($event), substr($message, 0, 250),
+                $this->getStatus($status), $direction, $operator, $client));
+        } catch (\Exception $e) {
+            print_r('Ошибка insertEvent>>>' . $e->getMessage());
+        }
+        return $result;
     }
 
     public function getStatus($code)
@@ -71,8 +77,8 @@ class SqlLiteManager extends SQLite3
     {
         $code = $this->getStatus($status);
         return $this->query(sprintf(
-            'select * from astra_events as e 
-                        where e.operator = %d 
+            'select distinct * from astra_events as e 
+                        where e.client = %d 
                               and (e.status = \'%s\' or \'%s\' == \'\')  
                               and e.create_time >= current_date 
                          order by e.create_time desc 
