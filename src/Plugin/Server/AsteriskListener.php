@@ -37,7 +37,7 @@ class AsteriskListener implements IEventListener
     {
         $response = $this->stream($event);
 
-        if ($response instanceof Response) {
+        if ($response instanceof Response and in_array($response->event, ['talkStart', 'ringStart'])) {
             $this->db->insertEvent($response->event, $response->message, $response->status,
                 $response->operator, $response->client);
         }

@@ -61,7 +61,7 @@ define([
 
         EventBus.addEventListener('peerStatus', function (event) {
             var data = JSON.parse( event.target.data);
-            slider.setOperator(data.username, data.status);
+            slider.setOperator(data.operator, data.status);
             slider.render();
         }, Asterisk);
 

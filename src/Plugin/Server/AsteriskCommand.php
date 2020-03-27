@@ -48,7 +48,7 @@ class AsteriskCommand
             if (preg_match('/'.$this->deviceChanel.'\/(\d+)/', $event->getKey('device'),$keys)) {
                 $res = new Response();
 
-                $status = '';
+                $status = 'Offline';
 
                 switch ($event->getKey('state')) {
                     case 'UNAVAILABLE' :

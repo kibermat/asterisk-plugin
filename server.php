@@ -87,23 +87,20 @@ $ws_worker->onConnect = function($connection) use (&$users)
         }
 
         $responses = $cmd->getOperators();
-        foreach ($users as $user) {
-            $webconnection = $user;
-            foreach ($responses as $response) {
-                $webconnection->send(json_encode($response->get()));
-            }
+        foreach ($responses as $response) {
+            $connection->send(json_encode($response->get()));
         }
 
         $users[$user] = $connection;
 
-        $results = $dbManager->getEvents($user, 'talk');
+        $results = $dbManager->getEvents($user, 'ring');
 
         while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
             $res['event'] = 'missed';
             $connection->send(json_encode($res));
         }
 
-//        $cmd->call($user, 8800);
+//      $cmd->call($user, 8800);
 
         print_r('connected ' . $user . PHP_EOL);
     };
