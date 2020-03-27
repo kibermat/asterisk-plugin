@@ -13,6 +13,7 @@ use Workerman\Lib\Timer;
 use Plugin\Server\AsteriskListener;
 use Plugin\Server\Response;
 use Plugin\Server\SqlLiteManager;
+use Plugin\Server\AsteriskCommand;
 
 
 $config = include('config.inc');
@@ -28,6 +29,7 @@ $users = [];
 $pamiClient = new PamiClient($options);
 
 $db = new SqlLiteManager();
+$cmd = new AsteriskCommand();
 
 $ws_worker->onWorkerStart = function() use (&$users) {
     global $pamiClient;

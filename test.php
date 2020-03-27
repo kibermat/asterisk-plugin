@@ -17,10 +17,11 @@ use PAMI\Message\Event\NewchannelEvent;
 use PAMI\Message\Event\HangupEvent;
 use PAMI\Message\Event\OriginateResponseEvent;
 use PAMI\Message\Action\AgentsAction;
-use PAMI\Message\Action\QueuesAction as Action;
+use PAMI\Message\Action\DeviceStateListAction as Action;
 
 use Plugin\Server\Response;
 use Plugin\Server\AsteriskListener;
+use Plugin\Server\AsteriskCommand;
 
 
 $config = include('config.inc');
@@ -37,13 +38,14 @@ $pamiClient->registerEventListener(new AsteriskListener($config),
             !($event instanceof NewextenEvent);
     });
 
+$cmd = new AsteriskCommand();
 
 $pamiClient->open();
 
-//$originateMsg = new Action();
-//$originateMsg->setActionID(1111999);
-//print_r($pamiClient->send($originateMsg));
+$results = $cmd->getOperators();
 
-$res = new Response();
-$res->get();
+foreach ($results as $res) {
+    print_r($res->get());
+}
+
 
