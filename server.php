@@ -27,8 +27,7 @@ $ws_worker->count = 2;
 $users = [];
 
 $pamiClient = new PamiClient($options);
-
-$db = new SqlLiteManager();
+$dbManager = new SqlLiteManager();
 $cmd = new AsteriskCommand();
 
 $ws_worker->onWorkerStart = function() use (&$users) {
@@ -63,10 +62,6 @@ $ws_worker->onWorkerStart = function() use (&$users) {
 
     $pamiClient->open();
 
-//    $originateMsg = new Action();
-//    $originateMsg->setActionID(1111999);
-//    print_r(  $pamiClient->send($originateMsg) );
-
     $time_interval = 1;
     $timer_id = Timer::add($time_interval,
         function()
@@ -82,16 +77,8 @@ $ws_worker->onConnect = function($connection) use (&$users)
 {
     $connection->onWebSocketConnect = function($connection) use (&$users)
     {
-        global $db;
-        foreach ($users as $user) {
-            $webconnection = $user;
-            $response = new Response();
-            $response->event = 'peerStatus';
-            $response->operator = $user;
-            $response->username = $user;
-            $response->status = 'Online';
-            $webconnection->send(json_encode($response->get()));
-        }
+        global $dbManager, $cmd;
+
         // при подключении нового пользователя сохраняем get-параметр
         $user = $_GET['operator'];
 
@@ -99,14 +86,24 @@ $ws_worker->onConnect = function($connection) use (&$users)
             return;
         }
 
+        $responses = $cmd->getOperators();
+        foreach ($users as $user) {
+            $webconnection = $user;
+            foreach ($responses as $response) {
+                $webconnection->send(json_encode($response->get()));
+            }
+        }
+
         $users[$user] = $connection;
 
-        $results = $db->getEvents($user, 'talk');
+        $results = $dbManager->getEvents($user, 'talk');
 
         while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
             $res['event'] = 'missed';
             $connection->send(json_encode($res));
         }
+
+//        $cmd->call($user, 8800);
 
         print_r('connected ' . $user . PHP_EOL);
     };

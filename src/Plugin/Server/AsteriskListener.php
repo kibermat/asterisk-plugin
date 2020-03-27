@@ -6,6 +6,7 @@ use PAMI\Message\Event\NewConnectedLineEvent;
 use PAMI\Message\Event\QueueMemberStatusEvent;
 use PAMI\Message\Event\DeviceStateChangeEvent;
 use PAMI\Message\Event\NewchannelEvent;
+use PAMI\Message\Event\NewstateEvent;
 use PAMI\Message\Event\PeerStatusEvent;
 use PAMI\Message\Event\QueueMemberEvent;
 use PAMI\Message\Event\HangupEvent;
@@ -108,6 +109,12 @@ class AsteriskListener implements IEventListener
             $response->status = 'Ring';
             $response->operator = -1;
             $response->message = ' ringStart3 ' . $response->event . ' >>> ' . $response->operator;
+        }
+        elseif ($event instanceof NewstateEvent  && $event->getChannelState() == 5) {
+            $response->event = 'ringStart';
+            $response->status = 'Ring';
+            $response->operator = -1;
+            $response->message = ' ringStart4 ' . $response->event . ' >>> ' . $response->operator;
         }   elseif ($event instanceof QueueMemberEvent) {
             $response->operator = -1;
             $response->event = 'peerStatus';
