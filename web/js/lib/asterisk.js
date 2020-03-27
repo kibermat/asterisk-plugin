@@ -911,7 +911,7 @@ define(["eventbus.min"], function (EventBus) {
                             afterSuccessConnect(wsObj);
                         }
                     }
-                    ws.send(JSON.stringify(['ping', {qid: qid}]));
+                    ws.send(JSON.stringify({method:'ping', data:{qid: qid}}));
                 } else {
                     wsObj.close();
                 }
@@ -1003,7 +1003,7 @@ define(["eventbus.min"], function (EventBus) {
                             wsArr[curl].onopen = function () {
                                 wsArr[curl].wasOpened = true;
                                 var qid = Math.random().toString();
-                                wsArr[curl].send(JSON.stringify(['ping', {qid: qid}]));
+                                wsArr[curl].send(JSON.stringify({method: 'ping', data: {qid: qid}}));
                                 wsArr[curl].onmessage = onMessage;
                             };
 
@@ -1094,7 +1094,7 @@ define(["eventbus.min"], function (EventBus) {
 
             self.wsSend = function (method, body, callback = null) {
                 for (var curl in wsArr ) {
-                    wsArr[curl].send(JSON.stringify([method, body]));
+                    wsArr[curl].send(JSON.stringify({method: method, data: body}));
                 }
             };
 
@@ -4522,8 +4522,8 @@ define(["eventbus.min"], function (EventBus) {
             };
             exportApi('connect', connect);
 
-            var wsSend = function() {
-                server.wsSend(arguments);
+            var wsSend = function(method, body) {
+                server.wsSend(method, body);
             };
             exportApi('wsSend', wsSend);
 

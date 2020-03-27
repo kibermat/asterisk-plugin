@@ -85,7 +85,7 @@ $ws_worker->onConnect = function($connection) use (&$users)
         if (!$user) {
             return;
         }
-
+        $connection->id = $user;
         $responses = $cmd->getOperators();
         foreach ($responses as $response) {
             $connection->send(json_encode($response->get()));
@@ -100,10 +100,20 @@ $ws_worker->onConnect = function($connection) use (&$users)
             $connection->send(json_encode($res));
         }
 
-//      $cmd->call($user, 8800);
-
         print_r('connected ' . $user . PHP_EOL);
     };
+};
+
+$ws_worker->onMessage = function ($connection, $data) {
+    global $cmd;
+
+    $req = json_decode($data);
+    $data = $req->data;
+
+    if ($req->method == 'call') {
+       $cmd->call($connection->id, $data->phone);
+    }
+
 };
 
 $ws_worker->onClose = function($connection) use(&$users)

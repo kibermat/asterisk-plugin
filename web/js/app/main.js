@@ -46,6 +46,12 @@ define([
 
         slider.setVisible(true);
 
+        // setTimeout(function () {
+        //         Asterisk.wsSend('call',
+        //             { phone: 8800 }
+        //         );
+        //     }, 3000);
+
         EventBus.addEventListener('ringStart', function (event) {
             var data = JSON.parse( event.target.data);
             slider.setOperator(data.operator, 'ring');
