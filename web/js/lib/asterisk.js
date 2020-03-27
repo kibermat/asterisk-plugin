@@ -960,7 +960,6 @@ define(["eventbus.min"], function (EventBus) {
             };
 
             var onClose = function () {
-                debugger;
                 if (wsWasOpened) {
                     if (!wsErrorConnection) {
                         self.trigger('connectionClose');
@@ -1091,7 +1090,13 @@ define(["eventbus.min"], function (EventBus) {
                 if (self.send(JSON.stringify(msg), msg[1].qid, callback) === false) {
                     callFunc(callback, {result: 0, errormsg: 'websocket send error'});
                 }
-            }
+            };
+
+            self.wsSend = function (method, body, callback = null) {
+                for (var curl in wsArr ) {
+                    wsArr[curl].send(JSON.stringify([method, body]));
+                }
+            };
 
             self.execProc = function (procName, paramsObj, callback) {
                 var msg = [
@@ -4516,6 +4521,11 @@ define(["eventbus.min"], function (EventBus) {
                 createServer();
             };
             exportApi('connect', connect);
+
+            var wsSend = function() {
+                server.wsSend(arguments);
+            };
+            exportApi('wsSend', wsSend);
 
             /**
              * disconnect from server
