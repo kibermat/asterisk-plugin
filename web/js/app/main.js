@@ -2,11 +2,14 @@ define([
      "jquery",
     "asterisk",
     "eventbus.min",
-    "./slider",
-    "./config"
+    "voice.min",
+    "panel.min",
+    "app/slider",
+    "app/config"
 ], function (
      $,
-     Asterisk, EventBus, slider, config) {
+     Asterisk, EventBus, panel, voice,
+     slider, config) {
     $(function () {
         // $('body').asterisk('connected');
 
@@ -44,17 +47,19 @@ define([
             console.log('callback>>> ' + res);
         });
 
-        slider.setVisible(true);
+        EventBus.addEventListener('onOpen', function (event) {
+            slider.setVisible(true);
+        }, Asterisk);
 
-        // setTimeout(function () {
-        //         Asterisk.wsSend('call',
-        //             { phone: 8800 }
-        //         );
-        //     }, 3000);
+        setTimeout(function () {
+                Asterisk.wsSend('call',
+                    { phone: 8800 }
+                );
+            }, 3000);
 
         EventBus.addEventListener('ringStart', function (event) {
             var data = JSON.parse( event.target.data);
-            slider.setOperator(data.operator, 'ring');
+            slider.setOperator(data.operator, 'Ring');
             slider.render();
         }, Asterisk);
 

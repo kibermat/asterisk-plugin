@@ -5,14 +5,18 @@ namespace Plugin\Server;
 class Response
 {
     public $id;
+    public $parent;
     public $origin;
-    public $message;
+    public $channel;
     public $operator;
     public $client;
     public $event;
     public $username;
     public $status;
     public $time;
+
+    public $target;
+    private $message;
 
     public function __construct($event = null)
     {
@@ -29,4 +33,18 @@ class Response
         return get_object_vars($this);
     }
 
+    public function getMessage()
+    {
+        return '';
+    }
+
+    public function setTarget($point)
+    {
+        $this->target = $point;
+    }
+
+    public function getTarget()
+    {
+        return $this->target ? $this->target : $this->operator;
+    }
 }

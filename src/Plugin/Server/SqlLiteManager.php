@@ -27,8 +27,10 @@ class SqlLiteManager extends SQLite3
         ');
         $this->exec('
                 create table if not exists astra_events (
+                    id text not null,
+                    parent text,
                     event text not null,
-                    message text, 
+                    сhannel text, 
                     status int not null, 
                     direction text, 
                     operator int default null,
@@ -45,7 +47,7 @@ class SqlLiteManager extends SQLite3
         $this->close();
     }
 
-    public function insertEvent($event, $message, $status, $operator = null, $client = null, $direction = null)
+    public function insertEvent($id, $parent, $event, $сhannel, $status, $operator = null, $client = null, $direction = null)
     {
         if (!$event or !$status or !$this->getStatus($status)) {
             return false;
@@ -53,10 +55,10 @@ class SqlLiteManager extends SQLite3
         $result = null;
 
         try {
-            $format = 'insert into astra_events (event, message, status, direction, operator, client) 
-                        values ( \'%s\', \'%s\', %d, \'%s\', %d, %d)';
+            $format = 'insert into astra_events (id, parent, event, сhannel, status, direction, operator, client) 
+                        values ( \'%s\', \'%s\',\'%s\', \'%s\', %d, \'%s\', %d, %d)';
 
-            $result = $this->exec(sprintf($format, strval ($event), substr($message, 0, 250),
+            $result = $this->exec(sprintf($format, $id, $parent, strval ($event), substr($сhannel, 0, 250),
                 $this->getStatus($status), $direction, $operator, $client));
         } catch (\Exception $e) {
             print_r('Ошибка insertEvent>>>' . $e->getMessage());
@@ -73,7 +75,7 @@ class SqlLiteManager extends SQLite3
             strtoupper($code)), false);
     }
 
-    public function getEvents($operator, $status = null)
+    public function getEvents($operator, $status = null, $limit = 10)
     {
         $code = $this->getStatus($status);
         return $this->query(sprintf(
@@ -81,8 +83,8 @@ class SqlLiteManager extends SQLite3
                         where e.client = %d 
                               and (e.status = \'%s\' or \'%s\' == \'\')  
                               and e.create_time >= current_date 
-                         order by e.create_time desc 
-                              ', $operator, $code, $code));
+                         order by e.create_time desc limit %d 
+                              ', $operator, $code, $code, $limit));
     }
 }
 

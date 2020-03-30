@@ -9,8 +9,8 @@ requirejs.config({
     },
     "shim": {
         "asterisk": ["jquery"],
-        "jquery.alpha": ["jquery"],
-        "jquery.beta": ["jquery"]
+        "panel.min": ["jquery"],
+        "voice.min": ["jquery"]
     }
 });
 

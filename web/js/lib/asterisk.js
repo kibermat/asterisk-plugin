@@ -945,12 +945,13 @@ define(["eventbus.min"], function (EventBus) {
                 }
             };
 
-            var onOpen = function () {
+            var onOpen = function (evt) {
                 wsWasOpened = true;
                 if (typeof onOpenCallback == 'function') {
                     log('success connect to ' + ws.url);
                     onOpenCallback(ws.url);
                 }
+                EventBus.dispatch('onOpen', evt, null);
             };
 
             var onMessage = function (evt) {
@@ -1000,11 +1001,12 @@ define(["eventbus.min"], function (EventBus) {
 
                             log('trying to connect > ' + curl);
 
-                            wsArr[curl].onopen = function () {
+                            wsArr[curl].onopen = function (evt) {
                                 wsArr[curl].wasOpened = true;
                                 var qid = Math.random().toString();
-                                wsArr[curl].send(JSON.stringify({method: 'ping', data: {qid: qid}}));
+                                // wsArr[curl].send(JSON.stringify({method: 'ping', data: {qid: qid}}));
                                 wsArr[curl].onmessage = onMessage;
+                                EventBus.dispatch('onOpen', evt, null);
                             };
 
                             setTimeout(function () {

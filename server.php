@@ -40,14 +40,14 @@ $ws_worker->onWorkerStart = function() use (&$users) {
     // когда на локальный tcp-сокет приходит сообщение
     $inner_tcp_worker->onMessage = function($connection, $data) use (&$users) {
         $data = json_decode($data);
-        if (isset($users[$data->operator])) {
-            $webconnection = $users[$data->operator];
-            $webconnection->send(json_encode($data));
-        } elseif($data->operator === -1) {
+        if($data->target === -1) {
             foreach ($users as $user) {
                 $webconnection = $user;
                 $webconnection->send(json_encode($data));
             }
+        } elseif (isset($users[$data->operator])) {
+            $webconnection = $users[$data->operator];
+            $webconnection->send(json_encode($data));
         }
     };
 

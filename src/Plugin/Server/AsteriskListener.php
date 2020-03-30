@@ -38,90 +38,61 @@ class AsteriskListener implements IEventListener
         $response = $this->stream($event);
 
         if ($response instanceof Response and in_array($response->event, ['talkStart', 'ringStart'])) {
-            $this->db->insertEvent($response->event, $response->message, $response->status,
-                $response->operator, $response->client);
+            $this->db->insertEvent(
+                $response->id,
+                $response->parent,
+                $response->event,
+                $response->channel,
+                $response->status,
+                $response->operator,
+                $response->client);
         }
     }
 
     public function stream(EventMessage $event) {
         $response = new Response($event);
+        $response->id = $event->getKey('uniqueid');
+        $response->parent = $event->getKey('linkedid');
         $response->operator = $event->getKey('Exten');
         $response->event = $event->getName();
-        $response->message = null;
+        $response->channel = $event->getKey('channel');
+
+        if (!$response->id) {
+            return null;
+        }
+
+        $response->setTarget($response->operator);
+        // message
         $response->username = null;
         $response->status = null;
 
         if ($event instanceof NewchannelEvent) {
             $response->event = 'talkStart';
-            $response->status = 'newChannel';
-            $response->client = $event->getCallerIDNum();
-            $response->operator = $event->getExtension();
-            $response->message = $response->client . ' >>> ' . $response->operator . PHP_EOL;
-        } elseif ($event instanceof QueueMemberStatusEvent) {
-            preg_match('/(\d)+/', $event->getMemberName(), $members);
-            if ($members) {
-                $response->client = $members[0];
+            $response->status = 'Talk';
+            $response->client = $event->getExtension();
+            $response->operator = $event->getCallerIDNum();
+            if (!preg_match('/(\d)+/', $event->getExtension())) {
+                return null;
             }
-
-            $response->operator = -1;
-            $response->username = $event->getMemberName();
-            $response->event = 'peerStatus';
-            $response->status = 'Online';
-            $device_status = $event->getStatus();
-
-            switch ($device_status) {
-                case '0' :
-                    $device_status = 'AST_DEVICE_UNKNOWN';
-                    break;
-                case '1' :
-                    $device_status = 'AST_DEVICE_NOT_INUSE';
-                    break;
-                case '2' :
-                    $device_status = 'AST_DEVICE_INUSE';
-                    $response->status = 'Talk';
-                    break;
-                case '3' :
-                    $device_status = 'AST_DEVICE_BUSY';
-                    $response->status = 'Busy';
-                    break;
-                case '4' :
-                    $device_status = 'AST_DEVICE_INVALID';
-                    break;
-                case '5' :
-                    $device_status = 'AST_DEVICE_UNAVAILABLE';
-                    break;
-                case '6' :
-                    $device_status = 'AST_DEVICE_RINGING';
-                    $response->event = 'ringStart';
-                    $response->status = 'Ring';
-                    break;
-                case '7' :
-                    $device_status = 'AST_DEVICE_RINGINUSE';
-                    $response->status = 'Ring';
-                    break;
-                case '8':
-                    $device_status = 'AST_DEVICE_ONHOLD';
-                    break;
-            }
-            $response->message = ' ringStart2 ' . $response->operator . ' ' . $response->status;
-        } elseif ($event instanceof DeviceStateChangeEvent  && $event->getState() == 'RINGING') {
+            // message
+        }
+        elseif ($event instanceof DeviceStateChangeEvent  && $event->getState() == 'RINGING') {
+            $response->setTarget(-1);
+            $response->operator = $event->getKey('Device');
             $response->event = 'ringStart';
             $response->status = 'Ring';
-            $response->operator = -1;
-            $response->message = ' ringStart3 ' . $response->event . ' >>> ' . $response->operator;
+            // message
         }
         elseif ($event instanceof NewstateEvent  && $event->getChannelState() == 5) {
+            $response->setTarget(-1);
             $response->event = 'ringStart';
             $response->status = 'Ring';
-            $response->operator = -1;
-            $response->message = ' ringStart4 ' . $response->event . ' >>> ' . $response->operator;
-        }   elseif ($event instanceof QueueMemberEvent) {
-            $response->operator = -1;
-            $response->event = 'peerStatus';
-            $response->status = 'Online';
-            $response->username = $event->getMemberName();
-        }   elseif ($event instanceof PeerStatusEvent) {
-            $response->operator = -1;
+            $response->client = $event->getCallerIDNum();
+            $response->operator = $event->getConnectedLineNum();
+//          print_r(var_export($event, true));
+        }
+        elseif ($event instanceof PeerStatusEvent) {
+            $response->setTarget(-1);
             $response->event = 'peerStatus';
             $response->status = $event->getPeerStatus();
             $response->username = $event->getPeer();
@@ -138,19 +109,19 @@ class AsteriskListener implements IEventListener
                     break;
             }
             if (preg_match('/(\d)+/', $response->username, $peers)) {
-                $response->client = $peers[0];
+                $response->operator = $peers[0];
             }
-            $response->message = ' agentsEvent ' . $response->event . ' >>> ' . var_export($event, true);
+            // message
         }
 
-        if (!$response->message) {
+        if (!$response->status) {
             return;
         }
 
         $instance = stream_socket_client($this->socket);
         fwrite($instance, json_encode($response->get()));
 
-        print_r($response->operator . '>>> ' . $event->getName()   . ' ' . get_class($event) . PHP_EOL);
+        print_r($response->operator . '>>> ' . $event->getName() .  PHP_EOL);
 
         return $response;
 
