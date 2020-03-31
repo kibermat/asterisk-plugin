@@ -120,10 +120,9 @@ define(function () {
                         var event = _eventList[num][id];
                         var dt = new Date(event.create_time);
                         _sliderMainContent.append(_createNode(
-                            event.code + ' ' + event.client + ' ' +
-                                 dt.toLocaleTimeString().slice(0,-3) + ' ' +
-                                 dt.toLocaleDateString().slice(0,-5) ,
-                            'li'));
+                            dt.toLocaleTimeString().slice(0,-3) + ' ' +
+                                  event.code + ' ' + event.operator
+                            , 'li'));
                     }
                 }
             };
