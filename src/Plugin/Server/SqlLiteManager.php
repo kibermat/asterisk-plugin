@@ -22,7 +22,7 @@ class SqlLiteManager extends SQLite3
                                      (20, \'RING\'),
                                      (30, \'MISSED\')
                              ) as t)
-                    select id, code
+                    select cast(id as int) as id, cast(code as text) as code
                     from cte    
         ');
         $this->exec('
@@ -79,7 +79,9 @@ class SqlLiteManager extends SQLite3
     {
         $code = $this->getStatus($status);
         return $this->query(sprintf(
-            'select distinct * from astra_events as e 
+            'select distinct e.*, s.code
+                        from astra_events as e 
+                            join astra_status as s on e.status = s.id
                         where e.client = %d 
                               and (e.status = \'%s\' or \'%s\' == \'\')  
                               and e.create_time >= current_date 
@@ -89,7 +91,6 @@ class SqlLiteManager extends SQLite3
 }
 
 //$db = new SqlLiteManager();
-//$db->insertEvent( 'event', 'ping ', 'missed', 1310, 8800, 'out');
-//$db->getStatus('ring');
-//$res = $db->getEvents(1310, 'ring');
-
+//$db->insertEvent( '1111', '11111', 'event', 'sip/1310 ', 'missed', 1310, 8800, 'out');
+//$db->getStatus('missed');
+//$res = $db->getEvents(1310, 'missed');

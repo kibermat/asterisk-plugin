@@ -34,11 +34,13 @@ $ws_worker->onWorkerStart = function() use (&$users) {
     global $pamiClient;
     global $config;
 
+
     // создаём локальный tcp-сервер, чтобы отправлять на него сообщения из кода нашего сайта
     $inner_tcp_worker = new Worker($config['socket']);
     // создаём обработчик сообщений, который будет срабатывать,
     // когда на локальный tcp-сокет приходит сообщение
     $inner_tcp_worker->onMessage = function($connection, $data) use (&$users) {
+        global $dbManager;
         $data = json_decode($data);
         if($data->target === -1) {
             foreach ($users as $user) {
@@ -48,6 +50,16 @@ $ws_worker->onWorkerStart = function() use (&$users) {
         } elseif (isset($users[$data->operator])) {
             $webconnection = $users[$data->operator];
             $webconnection->send(json_encode($data));
+        } else {
+            $dbManager->insertEvent(
+                $data->id,
+                $data->parent,
+                $data->event,
+                $data->channel,
+                'missed',
+                $data->operator,
+                $data->client
+            );
         }
     };
 
@@ -93,7 +105,7 @@ $ws_worker->onConnect = function($connection) use (&$users)
 
         $users[$user] = $connection;
 
-        $results = $dbManager->getEvents($user, 'ring');
+        $results = $dbManager->getEvents($user, 'missed');
 
         while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
             $res['event'] = 'missed';
@@ -112,6 +124,8 @@ $ws_worker->onMessage = function ($connection, $data) {
 
     if ($req->method == 'call') {
        $cmd->call($connection->id, $data->phone);
+    } elseif ($req->method == 'takeCall') {
+       $cmd->takeCall($connection->id, $data->channel);
     }
 
 };

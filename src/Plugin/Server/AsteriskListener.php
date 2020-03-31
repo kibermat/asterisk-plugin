@@ -55,7 +55,7 @@ class AsteriskListener implements IEventListener
         $response->parent = $event->getKey('linkedid');
         $response->operator = $event->getKey('Exten');
         $response->event = $event->getName();
-        $response->channel = $event->getKey('channel');
+        $response->channel = $event->getKey('Channel');
 
         if (!$response->id) {
             return null;
@@ -83,12 +83,23 @@ class AsteriskListener implements IEventListener
             $response->status = 'Ring';
             // message
         }
-        elseif ($event instanceof NewstateEvent  && $event->getChannelState() == 5) {
+        elseif ($event instanceof NewstateEvent  && $event->getChannelState() >= 5) {
             $response->setTarget(-1);
             $response->event = 'ringStart';
             $response->status = 'Ring';
             $response->client = $event->getCallerIDNum();
             $response->operator = $event->getConnectedLineNum();
+
+            switch ($event->getChannelState()) {
+                case 5:
+                    $response->event = 'ringStart';
+                    $response->status = 'Ring';
+                    break;
+                case 6:
+                    $response->event = 'talkStart';
+                    $response->status = 'Talk';
+                    break;
+            }
 //          print_r(var_export($event, true));
         }
         elseif ($event instanceof PeerStatusEvent) {

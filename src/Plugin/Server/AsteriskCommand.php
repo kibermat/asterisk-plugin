@@ -96,4 +96,23 @@ class AsteriskCommand
 
         return $this->pamiClient->send($originate);
     }
+
+    /***
+     * Take Call OriginateAction
+     * @param $operator
+     * @param $data
+     * @return ResponseMessage
+     * @throws ClientException
+     */
+    public function takeCall($operator, $data) {
+        $chanel = $this->deviceChanel.'/'.$operator;
+        $originate = new OriginateAction($chanel);
+        $originate->setPriority(1);
+        $originate->setData($data);
+        $originate->setApplication('PickupChan');
+        $originate->setCallerId($operator);
+        $originate->setVariable('SIPADDHEADER', 'Call-Info:\;answer-after=0');
+
+        return $this->pamiClient->send($originate);
+    }
 }
