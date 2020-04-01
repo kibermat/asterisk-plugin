@@ -93,4 +93,8 @@ class SqlLiteManager extends SQLite3
 //$db = new SqlLiteManager();
 //$db->insertEvent( '1111', '11111', 'event', 'sip/1310 ', 'missed', 1310, 8800, 'out');
 //$db->getStatus('missed');
-//$res = $db->getEvents(1310, 'missed');
+//$results = $db->getEvents(1310, 'missed');
+//
+//while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
+//    print_r(var_export($res, true));
+//}

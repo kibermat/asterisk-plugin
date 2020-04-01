@@ -10,7 +10,8 @@ use PAMI\Message\Event\NewextenEvent;
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 
-use Plugin\Server\AsteriskListener;
+use Plugin\Server\Listener\AsteriskActions;
+use Plugin\Server\Listener\AsteriskPings;
 use Plugin\Server\Response;
 use Plugin\Server\SqlLiteManager;
 use Plugin\Server\AsteriskCommand;
@@ -30,17 +31,12 @@ $pamiClient = new PamiClient($options);
 $dbManager = new SqlLiteManager();
 $cmd = new AsteriskCommand();
 
-$ws_worker->onWorkerStart = function() use (&$users) {
-    global $pamiClient;
-    global $config;
-
-
+$ws_worker->onWorkerStart = function() use (&$users, $pamiClient, $dbManager, $config) {
     // создаём локальный tcp-сервер, чтобы отправлять на него сообщения из кода нашего сайта
     $inner_tcp_worker = new Worker($config['socket']);
     // создаём обработчик сообщений, который будет срабатывать,
     // когда на локальный tcp-сокет приходит сообщение
-    $inner_tcp_worker->onMessage = function($connection, $data) use (&$users) {
-        global $dbManager;
+    $inner_tcp_worker->onMessage = function($connection, $data) use (&$users, $dbManager) {
         $data = json_decode($data);
         if($data->target === -1) {
             foreach ($users as $user) {
@@ -50,13 +46,15 @@ $ws_worker->onWorkerStart = function() use (&$users) {
         } elseif (isset($users[$data->operator])) {
             $webconnection = $users[$data->operator];
             $webconnection->send(json_encode($data));
-        } else {
+        }
+
+        if (isset($data->operator) and !isset($users[$data->operator])) {
             $dbManager->insertEvent(
                 $data->id,
                 $data->parent,
                 $data->event,
                 $data->channel,
-                'missed',
+                'Missed',
                 $data->operator,
                 $data->client
             );
@@ -65,7 +63,14 @@ $ws_worker->onWorkerStart = function() use (&$users) {
 
     $inner_tcp_worker->listen();
 
-    $pamiClient->registerEventListener(new AsteriskListener($config),
+    $pamiClient->registerEventListener(new AsteriskPings($config),
+        function($event) {
+            return !($event instanceof VarSetEvent) &&
+                !($event instanceof NewextenEvent)
+                ;
+        });
+
+    $pamiClient->registerEventListener(new AsteriskActions($config),
         function($event) {
             return !($event instanceof VarSetEvent) &&
                    !($event instanceof NewextenEvent)
@@ -76,21 +81,17 @@ $ws_worker->onWorkerStart = function() use (&$users) {
 
     $time_interval = 1;
     $timer_id = Timer::add($time_interval,
-        function()
-        {
-            global $pamiClient;
+        function () use ($pamiClient) {
             $pamiClient->process();
         }
     );
 
 };
 
-$ws_worker->onConnect = function($connection) use (&$users)
+$ws_worker->onConnect = function($connection) use (&$users, $dbManager, $cmd)
 {
-    $connection->onWebSocketConnect = function($connection) use (&$users)
+    $connection->onWebSocketConnect = function($connection) use (&$users, $dbManager, $cmd)
     {
-        global $dbManager, $cmd;
-
         // при подключении нового пользователя сохраняем get-параметр
         $user = $_GET['operator'];
 
@@ -108,7 +109,7 @@ $ws_worker->onConnect = function($connection) use (&$users)
         $results = $dbManager->getEvents($user, 'missed');
 
         while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
-            $res['event'] = 'missed';
+            $res['event'] = 'Missed';
             $connection->send(json_encode($res));
         }
 
@@ -116,9 +117,7 @@ $ws_worker->onConnect = function($connection) use (&$users)
     };
 };
 
-$ws_worker->onMessage = function ($connection, $data) {
-    global $cmd;
-
+$ws_worker->onMessage = function ($connection, $data) use ($cmd) {
     $req = json_decode($data);
     $data = $req->data;
 
@@ -127,28 +126,31 @@ $ws_worker->onMessage = function ($connection, $data) {
     } elseif ($req->method == 'takeCall') {
        $cmd->takeCall($connection->id, $data->channel);
     }
-
 };
 
 $ws_worker->onClose = function($connection) use(&$users)
 {
-    foreach ($users as $user) {
-        $webconnection = $user;
+    // удаляем параметр при отключении пользователя
+    $user = array_search($connection, $users);
+
+    if (!$user) {
+        return;
+    }
+
+    foreach ($users as $operator) {
+        $webconnection = $operator;
         $response = new Response();
-        $response->event = 'peerStatus';
-        $response->operator = $user;
-        $response->username = $user;
+        $response->event = 'Ping';
+        $response->operator = $operator;
+        $response->username = $operator;
         $response->status = 'Offline';
         $webconnection->send(json_encode($response->get()));
     }
 
-    // удаляем параметр при отключении пользователя
-    $user = array_search($connection, $users);
     unset($users[$user]);
     print_r('disconnect ' . $user . PHP_EOL);
 
 //    if (count($users) == 0) {
-//        global $pamiClient;
 //        Timer::delAll();
 //        $pamiClient->close();
 //        echo('Worker>>> closed');

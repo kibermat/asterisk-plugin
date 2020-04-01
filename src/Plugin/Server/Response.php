@@ -2,6 +2,9 @@
 
 namespace Plugin\Server;
 
+use Plugin\Server\SqlLiteManager;
+
+
 class Response
 {
     public $id;
@@ -16,21 +19,39 @@ class Response
     public $time;
 
     public $target;
-    private $message;
+    private static $db;
 
     public function __construct($event = null)
     {
         $this->time = \time();
         $this->origin = $event;
+        self::$db = new SqlLiteManager();
     }
 
     public function __destruct() {
 
     }
 
+    public function save() {
+        self::$db->insertEvent(
+            $this->id,
+            $this->parent,
+            $this->event,
+            $this->channel,
+            $this->status,
+            $this->operator,
+            $this->client
+        );
+    }
+
     public function get()
     {
         return get_object_vars($this);
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function getMessage()

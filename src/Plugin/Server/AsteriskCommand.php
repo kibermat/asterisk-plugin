@@ -70,7 +70,8 @@ class AsteriskCommand
                 $res->origin = $event;
                 $res->status = $status;
                 $res->operator = array_pop($keys);
-                $res->event = 'peerStatus';
+                $res->username = $res->operator;
+                $res->event = 'Ping';
                 array_push($results, $res);
             }
         }

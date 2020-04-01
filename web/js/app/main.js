@@ -57,20 +57,21 @@ define([
             slider.render();
         }, Asterisk);
 
-        EventBus.addEventListener('talkStart', function (event) {
+        EventBus.addEventListener('Talk', function (event) {
             var data = JSON.parse(event.target.data);
             slider.setOperator(data.operator, 'Talk');
             slider.render();
             openForm(data);
         }, Asterisk);
 
-        EventBus.addEventListener('peerStatus', function (event) {
+        EventBus.addEventListener('Ping', function (event) {
             var data = JSON.parse( event.target.data);
-            slider.setOperator(data.operator, data.status);
+            slider.setOperator(data.username, data.status);
             slider.render();
+            console.log(data.username + ' ' + data.status);
         }, Asterisk);
 
-        EventBus.addEventListener('missed', function (event) {
+        EventBus.addEventListener('Missed', function (event) {
             var data = JSON.parse(event.target.data);
             slider.setEvents(data.client, data);
             slider.render();

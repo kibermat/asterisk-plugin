@@ -10,7 +10,7 @@ use PAMI\Message\Event\NewextenEvent;
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 
-use Plugin\Server\AsteriskListener;
+use Plugin\Server\AsteriskActions;
 use Plugin\Server\Response;
 use Plugin\Server\SqlLiteManager;
 use Plugin\Server\AsteriskCommand;
@@ -31,7 +31,7 @@ $dbManager = new SqlLiteManager();
 $cmd = new AsteriskCommand();
 
 
-$pamiClient->registerEventListener(new AsteriskListener($config),
+$pamiClient->registerEventListener(new AsteriskActions($config),
     function($event) {
         return !($event instanceof VarSetEvent) &&
             !($event instanceof NewextenEvent)

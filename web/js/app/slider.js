@@ -122,8 +122,7 @@ define(function () {
                         _sliderMainContent.append(_createNode(
                             event.code + ' ' +
                                   '<a href="#" class="call_button">' + event.client + '</a> ' +
-                                 dt.toLocaleTimeString().slice(0,-3) + ' ' +
-                                 dt.toLocaleDateString().slice(0,-5) ,
+                                 dt.toLocaleTimeString().slice(0,-3),
                             'li'));
                     }
                 }
