@@ -97,7 +97,7 @@ class AsteriskCommand
         try {
             $this->pamiClient->send($originate);
         } catch (ClientException $e) {
-            print_r('call ' . $e->getMessage() . PHP_EOL);
+            print_r('call>>> ' . $e->getMessage() . PHP_EOL);
         }
 
     }
@@ -106,7 +106,6 @@ class AsteriskCommand
      * Take Call OriginateAction
      * @param $operator
      * @param $data
-     * @return ResponseMessage
      * @throws ClientException
      */
     public function takeCall($operator, $data) {
@@ -117,7 +116,10 @@ class AsteriskCommand
         $originate->setApplication('PickupChan');
         $originate->setCallerId($operator);
         $originate->setVariable('SIPADDHEADER', 'Call-Info:\;answer-after=0');
-
-        return $this->pamiClient->send($originate);
+        try {
+            $this->pamiClient->send($originate);
+        } catch (ClientException $e) {
+            print_r('takeCall>>> ' . $e->getMessage() . PHP_EOL);
+        }
     }
 }

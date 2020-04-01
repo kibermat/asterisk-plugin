@@ -40,6 +40,7 @@ define(function () {
                 _items = []; // массив элементов
 
             var _operators = {};
+            var _channels = [];
             var _eventList = {};
 
             var _setVisible = function (isVisible) {
@@ -65,6 +66,21 @@ define(function () {
                     return;
                 }
                 _operators[num] = status;
+            };
+
+            var changeChannel = function (name, channel) {
+                var _ch,
+                    num = _getUserNum(name);
+
+                if (!num) {
+                    _ch = null;
+                } else if (!channel) {
+                    _ch = _channels[num];
+                } else {
+                    _ch = channel;
+                    _channels[num] = _ch;
+                }
+                return _ch;
             };
 
             var setEvents = function (num, event) {
@@ -114,14 +130,16 @@ define(function () {
                     if (!_operators.hasOwnProperty(num)) {
                         continue;
                     }
-                    _sliderMainContent.append(_createNode(num + ' : ' + _operators[num], 'p') );
+                    _sliderMainContent.append(_createNode(num + ' : ' +
+                            '<a href="#" class="take_button" data-phone="'+ _channels[num] +'">' + _operators[num] + '</a> ',
+                            'p') );
 
                     for (var id in _eventList[num]) {
                         var event = _eventList[num][id];
                         var dt = new Date(event.create_time);
                         _sliderMainContent.append(_createNode(
                             event.label + ' ' +
-                                  '<a href="#" class="call_button">' + event.client + '</a> ' +
+                                  '<a href="#" class="call_button" data-phone="'+ _channels[num] +'">' + event.client + '</a> ' +
                                  dt.toLocaleTimeString().slice(0,-3),
                             'li'));
                     }
@@ -198,6 +216,7 @@ define(function () {
                 setVisible: _setVisible,
                 render: _render,
                 setOperator: setOperator,
+                changeChannel: changeChannel,
                 setEvents: setEvents
             }
         }

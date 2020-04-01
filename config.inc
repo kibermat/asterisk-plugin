@@ -20,7 +20,13 @@
  *
  * Action: VoicemailUsersList
  *
- * 1380
+ * Action: Originate
+ * Channel: SIP/1310
+ * Application: PickupChan
+ * Data: SIP/1310-0000019a
+ * Priority: 1
+ * CallerId: 1310
+ * Variable: SIPADDHEADER="Call-Info:\;answer-after=0"
  *
  */
 

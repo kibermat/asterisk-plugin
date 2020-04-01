@@ -77,3 +77,9 @@
 .slider > li {
     font-size: large;
 }
+
+.slider a,
+.slider a:hover{
+    text-decoration: none;
+    background-color: transparent!important;
+}

@@ -80,6 +80,8 @@ class AsteriskActions extends AsteriskListener
 
         $response->setTarget($response->operator);
 
+//        print_r(var_export($response, true));
+
         return $response;
 
     }

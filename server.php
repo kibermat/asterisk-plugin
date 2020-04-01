@@ -41,15 +41,27 @@ $ws_worker->onWorkerStart = function() use (&$users, $pamiClient, $dbManager, $c
     // когда на локальный tcp-сокет приходит сообщение
     $inner_tcp_worker->onMessage = function($connection, $data) use (&$users, $dbManager) {
         $data = json_decode($data);
+        $isSent = false;
         if($data->target === -1) {
             foreach ($users as $user) {
                 $webconnection = $user;
                 $webconnection->send(json_encode($data));
             }
+            $isSent = true;
         } elseif (isset($users[$data->target])) {
             $webconnection = $users[$data->operator];
             $webconnection->send(json_encode($data));
-        } else {
+            $isSent = true;
+        }
+
+        if (isset($users[$data->client])) {
+            $data->operator = $data->client;
+            $webconnection = $users[$data->client];
+            $webconnection->send(json_encode($data));
+            $isSent = true;
+        }
+
+        if (!$isSent){
             $dbManager->insertEvent(
                 $data->id,
                 $data->parent,
@@ -75,7 +87,7 @@ $ws_worker->onWorkerStart = function() use (&$users, $pamiClient, $dbManager, $c
 
     $pamiClient->registerEventListener(new AsteriskActions($config),
         function($event) {
-            return ($event instanceof NewchannelEvent) ||
+            return //($event instanceof NewchannelEvent) ||
                    ($event instanceof NewstateEvent)
                 ;
         });
@@ -130,6 +142,7 @@ $ws_worker->onMessage = function ($connection, $data) use ($cmd) {
        $cmd->call($connection->id, $data->phone);
     } elseif ($req->method == 'takeCall') {
        $cmd->takeCall($connection->id, $data->channel);
+//       print_r($connection->id . '>>>' .$data->channel);
     }
 };
 

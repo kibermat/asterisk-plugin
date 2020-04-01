@@ -55,6 +55,7 @@ define([
         EventBus.addEventListener('Ring', function (event) {
             var data = JSON.parse( event.target.data);
             slider.setOperator(data.operator, 'Ring');
+            slider.changeChannel(data.operator, data.channel);
             slider.render();
         }, slider);
 
@@ -81,6 +82,11 @@ define([
         $(document).on("click", 'a.call_button', function(e) {
             Asterisk.wsSend('call',
                 { phone: e.target.innerText }
+            );
+        });
+        $(document).on("click", 'a.take_button', function(e) {
+            Asterisk.wsSend('takeCall',
+                { channel: e.target.getAttribute('data-phone') }
             );
         });
 
