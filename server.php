@@ -4,17 +4,20 @@ require_once __DIR__ . '/vendor/autoload.php';
 declare(ticks=1);
 
 use PAMI\Client\Impl\ClientImpl as PamiClient;
-use PAMI\Message\Event\VarSetEvent;
-use PAMI\Message\Event\NewextenEvent;
+use PAMI\Message\Event\HangupEvent;
+use PAMI\Message\Event\NewchannelEvent;
+use PAMI\Message\Event\NewstateEvent;
+use PAMI\Message\Event\PeerStatusEvent;
+use PAMI\Message\Event\QueueMemberStatusEvent;
 
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 
 use Plugin\Server\Listener\AsteriskActions;
 use Plugin\Server\Listener\AsteriskPings;
-use Plugin\Server\Response;
 use Plugin\Server\SqlLiteManager;
 use Plugin\Server\AsteriskCommand;
+use Plugin\Server\Response;
 
 
 $config = include('config.inc');
@@ -43,12 +46,10 @@ $ws_worker->onWorkerStart = function() use (&$users, $pamiClient, $dbManager, $c
                 $webconnection = $user;
                 $webconnection->send(json_encode($data));
             }
-        } elseif (isset($users[$data->operator])) {
+        } elseif (isset($users[$data->target])) {
             $webconnection = $users[$data->operator];
             $webconnection->send(json_encode($data));
-        }
-
-        if (isset($data->operator) and !isset($users[$data->operator])) {
+        } else {
             $dbManager->insertEvent(
                 $data->id,
                 $data->parent,
@@ -65,27 +66,28 @@ $ws_worker->onWorkerStart = function() use (&$users, $pamiClient, $dbManager, $c
 
     $pamiClient->registerEventListener(new AsteriskPings($config),
         function($event) {
-            return !($event instanceof VarSetEvent) &&
-                !($event instanceof NewextenEvent)
+            return ($event instanceof QueueMemberStatusEvent) ||
+                   ($event instanceof PeerStatusEvent) ||
+                   ($event instanceof HangupEvent)
+//                 ($event instanceof DeviceStateChangeEvent)
                 ;
         });
 
     $pamiClient->registerEventListener(new AsteriskActions($config),
         function($event) {
-            return !($event instanceof VarSetEvent) &&
-                   !($event instanceof NewextenEvent)
+            return ($event instanceof NewchannelEvent) ||
+                   ($event instanceof NewstateEvent)
                 ;
         });
 
     $pamiClient->open();
-
     $time_interval = 1;
-    $timer_id = Timer::add($time_interval,
+
+    Timer::add($time_interval,
         function () use ($pamiClient) {
             $pamiClient->process();
         }
     );
-
 };
 
 $ws_worker->onConnect = function($connection) use (&$users, $dbManager, $cmd)
@@ -106,9 +108,12 @@ $ws_worker->onConnect = function($connection) use (&$users, $dbManager, $cmd)
 
         $users[$user] = $connection;
 
-        $results = $dbManager->getEvents($user, 'missed');
+        $results = $dbManager->getMissed(10);
 
         while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
+            if($user != intval($res['operator'])) {
+                continue;
+            }
             $res['event'] = 'Missed';
             $connection->send(json_encode($res));
         }

@@ -83,7 +83,6 @@ class AsteriskCommand
      * Call OriginateAction
      * @param $operator
      * @param $client
-     * @return ResponseMessage
      * @throws ClientException
      */
     public function call($operator, $client) {
@@ -95,7 +94,12 @@ class AsteriskCommand
         $originate->setContext('from-internal');
         $originate->setVariable('SIPADDHEADER', 'Call-Info:\;answer-after=0');
 
-        return $this->pamiClient->send($originate);
+        try {
+            $this->pamiClient->send($originate);
+        } catch (ClientException $e) {
+            print_r('call ' . $e->getMessage() . PHP_EOL);
+        }
+
     }
 
     /***

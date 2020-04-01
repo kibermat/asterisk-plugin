@@ -69,7 +69,7 @@ define(function () {
 
             var setEvents = function (num, event) {
                 if (!_operators[num]) {
-                    _operators[num] = '';
+                    return;
                 }
 
                 if (!_eventList[num]) {
@@ -120,7 +120,7 @@ define(function () {
                         var event = _eventList[num][id];
                         var dt = new Date(event.create_time);
                         _sliderMainContent.append(_createNode(
-                            event.code + ' ' +
+                            event.label + ' ' +
                                   '<a href="#" class="call_button">' + event.client + '</a> ' +
                                  dt.toLocaleTimeString().slice(0,-3),
                             'li'));

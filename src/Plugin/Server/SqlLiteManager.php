@@ -13,16 +13,16 @@ class SqlLiteManager extends SQLite3
         $this->open($db);
         $this->exec('
                create table if not exists astra_status as
-                    with cte(id, code) as (
+                    with cte(id, code, label) as (
                         select t.*
-                        from (values (0, \'OFFLINE\'),
-                                     (1, \'ONLINE\'),
-                                     (10, \'TALK\'),
-                                     (11, \'BUSY\'),
-                                     (20, \'RING\'),
-                                     (30, \'MISSED\')
+                        from (values (0, \'OFFLINE\', \'Не в сети\'),
+                                     (1, \'ONLINE\',  \'В сети\'),
+                                     (10, \'TALK\',   \'Разговаривает\'),
+                                     (11, \'BUSY\',   \'Занят\'),
+                                     (20, \'RING\',   \'Звонок\'),
+                                     (30, \'MISSED\', \'Пропущенный\')
                              ) as t)
-                    select cast(id as int) as id, cast(code as text) as code
+                    select cast(id as int) as id, cast(code as text) as code, cast(label as text) as label
                     from cte    
         ');
         $this->exec('
@@ -79,22 +79,46 @@ class SqlLiteManager extends SQLite3
     {
         $code = $this->getStatus($status);
         return $this->query(sprintf(
-            'select distinct e.*, s.code
+            'select e.*, s.code, s.label
                         from astra_events as e 
                             join astra_status as s on e.status = s.id
-                        where e.client = %d 
+                        where e.operator = %d 
                               and (e.status = \'%s\' or \'%s\' == \'\')  
                               and e.create_time >= current_date 
                          order by e.create_time desc limit %d 
                               ', $operator, $code, $code, $limit));
     }
+
+    public function getMissed($limit = 10)
+    {
+        return $this->query(sprintf(
+            'with event as (
+                    select e.*,
+                           s.code,
+                           s.label
+                    from astra_events as e
+                             join astra_status as s on e.status = s.id
+                    where (s.code like \'MISSED\')
+                      and e.event like \'Ring\'
+                      and e.create_time >= current_date
+                )
+                select e.*, max(e.create_time) as max_create_time
+                from event as e
+                         left join astra_events a
+                                   on a.operator = e.operator and 
+                                   a.client = e.client and 
+                                   a.status = e.status and 
+                                   a.event like \'Talk\'
+                where a.id is null
+                group by e.operator, e.client, e.event limit %d ',  $limit));
+    }
 }
 
 //$db = new SqlLiteManager();
-//$db->insertEvent( '1111', '11111', 'event', 'sip/1310 ', 'missed', 1310, 8800, 'out');
-//$db->getStatus('missed');
-//$results = $db->getEvents(1310, 'missed');
-//
-//while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
-//    print_r(var_export($res, true));
-//}
+//////$db->insertEvent( '11112', '1111', 'event', 'sip/1310 ', 'missed', 1310, 8891, 'out');
+//////$db->getStatus('missed');
+//////$results = $db->getMissed(3);
+//////
+//////while ($res = $results->fetchArray(SQLITE3_ASSOC)) {
+//////    print_r(var_export($res, true));
+//////}
