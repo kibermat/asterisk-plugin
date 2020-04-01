@@ -51,12 +51,6 @@ define([
             slider.setVisible(true);
         }, Asterisk);
 
-        setTimeout(function () {
-                Asterisk.wsSend('call',
-                    { phone: 8800 }
-                );
-            }, 3000);
-
         EventBus.addEventListener('ringStart', function (event) {
             var data = JSON.parse( event.target.data);
             slider.setOperator(data.operator, 'Ring');
@@ -81,6 +75,12 @@ define([
             slider.setEvents(data.client, data);
             slider.render();
         }, Asterisk);
+
+        $('call_button').on('click', function(target) {
+            Asterisk.wsSend('call',
+                { phone: target.innerHTML }
+            );
+        });
 
     });
 });
